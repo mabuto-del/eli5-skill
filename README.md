@@ -7,7 +7,7 @@ The name is historical. The register is "smart person who has never written code
 ## Install
 
 ```sh
-git clone https://github.com/mabuto/eli5-skill.git ~/Developer/eli5-skill
+git clone https://github.com/mabuto-del/eli5-skill.git ~/Developer/eli5-skill
 ~/Developer/eli5-skill/install.sh
 ```
 
