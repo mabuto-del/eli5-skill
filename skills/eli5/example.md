@@ -2,6 +2,8 @@
 
 **Question:** How does the notifier retry a failed Slack post?
 
+Note: this example was written 2026-08-28 against `notifier.ts` at the repo root; the file has since moved to `queues/notifier.ts`. The identifiers below reflect the later layout.
+
 ## Grasp (done before writing)
 
 `notifier.ts` (stream and SQS paths, `runDeliveryLane`), `slackWebhook.ts` (5 s timeout, throws on non-OK), `retryQueue.ts` (`enqueueDelivery`), `intakeStack.ts` (retry queue `visibilityTimeout: 120`, `maxReceiveCount: 3`; DLQ retention 14 days; `DeadLetterAlarm`). The accepted event is published but nothing consumes it yet — so the prose says "signal is sent," not "player gets credit."
@@ -38,42 +40,41 @@ saved feedback --> post to Slack --> ok? --yes--> done
                           "needs a human" tray --> alarm
 ```
 
-1. **A helper wakes up.** A small program notices the new feedback and posts it into the team's Slack channel. Slack gets five seconds to answer. No "got it," and the post has failed.
+1. **The notifier posts.** (`queues/notifier.ts`, `runDeliveryLane`; `slackWebhook.ts`, `AbortSignal.timeout(5_000)`)
 
-2. **The failed post goes in a tray.** The helper does not keep hammering Slack. It drops a full copy of the feedback into a "try again later" tray and moves on, so one bad post never blocks the rest.
+   The moment feedback is saved, the notifier wakes up and posts it into the team's Slack channel. Slack gets five seconds to answer. No "got it," and the post has failed.
 
-3. **The tray hands it back.** Two minutes later the helper does the whole job again from the start.
-   - Before posting, it checks whether this feedback already reached Slack. If it did, it stops. That is why a retry never creates a duplicate.
+2. **The failed post goes in a tray.** (`RetryQueue.enqueueDelivery`, the SQS retry queue)
+
+   The notifier does not keep hammering Slack. It drops a full copy of the feedback into a "try again later" tray and moves on, so one bad post never blocks the rest.
+
+3. **The tray hands it back.** (`visibilityTimeout: 120`, `maxReceiveCount: 3` in `cdk/intakeStack.ts`)
+
+   Two minutes later the notifier does the whole job again from the copy.
+   - Before posting, it checks whether this feedback is already marked delivered (record `status`, `accepted → delivered`). If it is, it stops. That is why a retry never creates a duplicate.
    - Still down? Back in the tray, another two minutes. Three tries in total. A normal Slack hiccup lasts seconds, not minutes.
 
-4. **Three fails means a human.** The copy moves to a second tray marked "needs a human," kept for two weeks. An alarm goes off the moment that tray has one item. A person fixes the real problem, then pushes the item back through with one command.
+4. **Three fails means a human.** (`DeadLetterQueue`, retention 14 days; `DeadLetterAlarm`)
 
-5. **The reward signal goes first.** Before any of this, the moment feedback is saved, the helper sends the reward signal. Nothing acts on it yet, but the order is the point: a Slack problem is our problem, never the player's.
+   The copy moves to a second tray marked "needs a human," kept for two weeks. An alarm goes off the moment that tray has one item. A person fixes the real problem, then pushes the item back through with one command (SQS redrive, operator-run).
+
+5. **The reward signal goes first.** (`publishAccepted`; no consumer yet)
+
+   Before any of this, the moment feedback is saved, the notifier sends the reward signal. Nothing acts on it yet, but the order is the point: a Slack problem is our problem, never the player's.
 
 In one sentence: save first, try Slack, retry three times without duplicates, hand the stuck ones to a human with an alarm, and the player's reward never waits on any of it.
-
-**If they ask for the real names**
-- helper — the notifier Lambda, `notifier.ts`
-- five seconds — `slackWebhook.ts`, `AbortSignal.timeout(5_000)`
-- "try again later" tray — the SQS retry queue, `RetryQueue.enqueueDelivery`
-- two minutes / three tries — `visibilityTimeout: 120`, `maxReceiveCount: 3` in `intakeStack.ts`
-- already reached Slack — record `status` `accepted → delivered`
-- "needs a human" tray — the dead-letter queue, `DeadLetterQueue`; retention 14 days
-- alarm — `DeadLetterAlarm`
-- one command — SQS redrive, operator-run
-- reward signal — `publishAccepted` (accepted event); no consumer yet
 
 ## Self-check
 
 - Why it matters first: "we save it first, nothing can lose it." Last sentence starts "In one sentence:".
 - Break-up matches the mechanism: a sequence, so numbered stages.
-- Five stages, each hands off: wake → tray → retry → human → (precondition) signal.
+- Five stages, each hands off: post → tray → retry → human → (precondition) signal.
 - Anchored to a known thing: opens from "posting to Slack," which the question already used.
 - Ledger read before writing (empty); three lines appended after.
 - Owned words kept ("retry," "failed," "post"); one unknown (queue) replaced by one image (tray) in one phrase, no story around it.
 - Bullets only in step 3, where the retry forks.
 - Diagram uses the prose's words ("try again later" tray, "needs a human" tray, alarm) and could be redrawn from the prose alone.
-- No identifier in the prose. Every tail line starts with a phrase from the prose.
+- No identifier in the prose. Each stage carries its one or two identifiers in parentheses on the title line; the prose starts on the next line. The two sub-event bullets in step 3 and 4 carry theirs inline in parentheses, since bullets have no title line.
 - No mnemonic, no question to the reader, no humor.
 - Design-only claim flagged: reward signal has no consumer yet.
-- Word count: about 290 with step titles, diagram and tail excluded.
+- Word count: about 290 with step titles, diagram and parentheticals excluded.

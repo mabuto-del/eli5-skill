@@ -33,7 +33,7 @@ Every explanation goes through three phases, in order. Skipping one is the usual
 - **One image per mechanism.** Two things that work the same way share the image, told apart by a qualifier: the "try again later" tray and the "needs a human" tray. Never two unrelated images for two related things.
 - **No storytelling and no extended metaphor.** An analogy names one mechanism in one phrase and then gets out of the way. Never build a scene, a character, or a running story around the explanation. If the image needs its own sentence to explain, drop it and say the mechanism plainly.
 - **One idea per sentence.** No word cap. Split rather than squeeze.
-- **No real names in the prose.** No file names, function names, service names, field names, codes, or numbers with units that only mean something to an engineer. Plain quantities are fine: "five seconds," "three tries," "two weeks."
+- **No real names in the prose.** No file names, function names, service names, field names, codes, or numbers with units that only mean something to an engineer. Plain quantities are fine: "five seconds," "three tries," "two weeks." The one place a real name lives is the parenthetical on a part's title line (see Shape). The prose under it stays plain.
 - **Mnemonics: borrow, never coin.** If a well-known mnemonic exists for exactly this question (the kind a textbook or a widely used course teaches), you may use it and say it is the common one. Never invent a mnemonic, acronym, or rhyme of your own.
 
 ## Phase 3 — Fit
@@ -94,15 +94,23 @@ A follow-up that restates the mechanism correctly is the opposite signal. Confir
 
 1. **Open with why it matters.** One or two sentences: what is at stake, what the system protects. This is the sparkline: the promise of the explanation in one line.
 2. **Choose the break-up.** Pick exactly one, and say nothing about the choice:
-   - **Numbered stages** when the mechanism is a sequence: things happen in order and each stage hands off to the next. One number per stage, bold title of a few words, then the prose.
-   - **Three-part list** when the mechanism is not a sequence: three parts, three cases, three properties, or three sides of a comparison. Three bold headings, then the prose. If the natural count is two or four, use that count; never pad to three or squeeze to it.
-   - **Compare-and-contrast table** only when the question is "X versus Y." Two columns, three to five rows, plain-word row labels. Then one sentence on which to pick when.
-3. **Bullets only where a part has sub-events** — an ordered checklist inside one stage, or a fork with two outcomes. Never bullets for style.
-4. **Simple diagram, only if the mechanism has a shape.** A flow, a fork, a loop, layers, or a before-and-after can be drawn; a definition or a policy cannot. Draw it as plain text in a code block: boxes and arrows, one line per hop, no more than about eight boxes, labels in the same plain words the prose uses. Put it after the opening, before the parts, so the prose walks through the picture. If a diagram would only decorate, leave it out.
-5. **Close with one sentence that says the whole thing.** Start it "In one sentence:". First and last lines carry the most weight; both must stand alone.
-6. **Optional tail — "If they ask for the real names."** Each line starts with the exact phrase from the prose, then the real identifier. Include it only when the reader may need to act or grep; omit for spoken use.
+   - **Numbered stages** when the mechanism is a sequence: things happen in order and each stage hands off to the next. One number per stage, bold title of a few words, then the real name in parentheses, then the prose on its own lines.
+   - **Three-part list** when the mechanism is not a sequence: three parts, three cases, three properties, or three sides of a comparison. Bold heading, real name in parentheses, then the prose on its own lines. If the natural count is two or four, use that count; never pad to three or squeeze to it.
+   - **Compare-and-contrast table** only when the question is "X versus Y." Two columns, three to five rows, plain-word row labels with the real name in parentheses inside the label cell. Then one sentence on which to pick when.
+3. **Real names ride on the title line, not in a tail.** Every stage, part, or row carries the one or two identifiers the reader would open or grep first: a file, a function, a queue, a config key. They go in parentheses right after the bold title, on the same line. The prose starts on the next line, so the reader never jumps between the explanation and a separate list. Format for a stage:
 
-Target length: 275 words, more or less. The diagram and the tail do not count.
+   ```
+   1. **The notifier posts.** (`queues/notifier.ts`, `runDeliveryLane`)
+
+      The moment feedback is saved, the notifier wakes up and posts it to the team channel.
+   ```
+
+   A blank line and an indent under the title keep the prose on its own line in every renderer. A quantity in the prose whose source the reader may need ("five seconds") gets its config key in the same parentheses, comma-separated, never a third line. If the reader says "no names," or the answer is for speaking aloud, drop every parenthetical and change nothing else.
+4. **Bullets only where a part has sub-events** — an ordered checklist inside one stage, or a fork with two outcomes. Never bullets for style.
+5. **Simple diagram, only if the mechanism has a shape.** A flow, a fork, a loop, layers, or a before-and-after can be drawn; a definition or a policy cannot. Draw it as plain text in a code block: boxes and arrows, one line per hop, no more than about eight boxes, labels in the same plain words the prose uses. Put it after the opening, before the parts, so the prose walks through the picture. If a diagram would only decorate, leave it out.
+6. **Close with one sentence that says the whole thing.** Start it "In one sentence:". First and last lines carry the most weight; both must stand alone.
+
+Target length: 275 words, more or less. The diagram and the parentheticals do not count.
 
 ## Never
 
@@ -120,12 +128,12 @@ Target length: 275 words, more or less. The diagram and the tail do not count.
 - The mechanism is anchored to one thing the reader model says they know.
 - No term the reader model marks as known is re-explained; no term it marks as unknown is used undefined.
 - The ledger was read before writing, and the new observations were appended after.
-- No real identifier appears in the prose. If one is needed, it is in the tail, keyed by a phrase that appears verbatim above.
+- No real identifier appears in the prose. Every stage, part, or row has its one or two identifiers in parentheses on the title line, and the prose starts on the next line.
 - Every analogy stands for a mechanism the reader has no word for, in one phrase, with no story around it. Same mechanism, same image.
 - Any mnemonic is a common one, not coined here.
 - The diagram, if present, uses the prose's words and could be redrawn from the prose alone.
 - Every claim is true of the running system today. Design-only claims and unverified parts are flagged.
-- Word count is near 275, diagram and tail excluded.
+- Word count is near 275, diagram and parentheticals excluded.
 
 ## Precedence
 
@@ -135,9 +143,9 @@ Inside `/eli5` output this register wins over any other output-shaping rule (STE
 
 - This is a reading aid. It is not a proof, a review verdict, a spec, or a runbook. Never substitute it for one.
 - Do not run it on `/proof`, `/review`, `/spec` output unless the user runs `/eli5` on that output explicitly.
-- Same secrecy rules as any answer: no credentials, no player data, no secret values. A parameter *name* may appear in the tail; its value never does.
+- Same secrecy rules as any answer: no credentials, no player data, no secret values. A parameter *name* may appear in a parenthetical; its value never does.
 - The ledger is the only file this skill writes. It never writes into the project, the vault, or auto-memory.
 
 ## Worked example
 
-See `example.md` in this folder — the intake notifier's Slack retry, written to this shape, with the reader model, the ledger lines, the break-up choice, the diagram, the names tail, and the self-check applied.
+See `example.md` in this folder — the intake notifier's Slack retry, written to this shape, with the reader model, the ledger lines, the break-up choice, the diagram, the inline real names, and the self-check applied.

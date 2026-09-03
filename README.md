@@ -50,7 +50,7 @@ To see what Claude thinks you know: `cat ~/.claude/eli5/reader.md`. To correct i
 2. A simple text diagram, only when the mechanism has a shape (a flow, a fork, a loop, layers).
 3. Small bites: numbered stages for a sequence, a three-part list for parts or cases, a two-column table for "X versus Y." Bullets only where a part forks.
 4. A closing line starting "In one sentence:".
-5. Optionally, a tail titled "If they ask for the real names" — each line starts with a phrase from the prose, then the real file, queue, or field. Included when you may need to act on the answer; say "no names" in the question to leave it out.
+5. The real names inline: every stage, part, or table row carries its one or two identifiers in parentheses right after the bold title, with the prose on the next line. No separate names list, no jumping up and down. Say "no names" in the question to drop every parenthetical.
 
 The prose carries no identifiers, only what the system does today, and one image per mechanism (two things that work the same way share the image, told apart by a qualifier). No storytelling, no extended metaphor, no invented mnemonics, no questions back, no humor.
 
