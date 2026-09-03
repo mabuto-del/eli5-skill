@@ -2,13 +2,33 @@
 
 **Question:** How does the notifier retry a failed Slack post?
 
-## Grounding (done before writing)
+## Grasp (done before writing)
 
 `notifier.ts` (stream and SQS paths, `runDeliveryLane`), `slackWebhook.ts` (5 s timeout, throws on non-OK), `retryQueue.ts` (`enqueueDelivery`), `intakeStack.ts` (retry queue `visibilityTimeout: 120`, `maxReceiveCount: 3`; DLQ retention 14 days; `DeadLetterAlarm`). The accepted event is published but nothing consumes it yet — so the prose says "signal is sent," not "player gets credit."
+
+## Fit (decided before writing)
+
+**Reader model.** The question uses "retry," "failed," and "Slack post" unprompted, so those are owned words and stay. Nothing in the question or the session shows the reader knows what a queue is, so the default baseline applies: queue is unknown, becomes "tray." Anchor: the reader knows what "posting to Slack" is, so the mechanism opens from there.
+
+**Break-up.** The mechanism is a sequence — post, fail, tray, retry, escalate — so numbered stages, not a three-part list.
+
+**Diagram.** The mechanism has a shape (a loop with an exit to a second tray), so one text diagram goes before the stages.
 
 ## Output
 
 When a player sends us feedback, we save it first. Once it is saved, nothing can lose it. The rest is about getting it in front of a person without losing it or posting it twice.
+
+```
+saved feedback --> post to Slack --> ok? --yes--> done
+                        ^            |
+                        |            no
+                        |            v
+                   "try again later" tray  (up to 3 tries)
+                                     |
+                              still failing
+                                     v
+                          "needs a human" tray --> alarm
+```
 
 1. **A helper wakes up.** A small program notices the new feedback and posts it into the team's Slack channel. Slack gets five seconds to answer. No "got it," and the post has failed.
 
@@ -38,9 +58,13 @@ In one sentence: save first, try Slack, retry three times without duplicates, ha
 ## Self-check
 
 - Why it matters first: "we save it first, nothing can lose it." Last sentence starts "In one sentence:".
-- Five steps, each a stage that hands off: wake → tray → retry → human → (precondition) signal.
+- Break-up matches the mechanism: a sequence, so numbered stages.
+- Five stages, each hands off: wake → tray → retry → human → (precondition) signal.
+- Anchored to a known thing: opens from "posting to Slack," which the question already used.
+- Owned words kept ("retry," "failed," "post"); one unknown (queue) replaced by one image (tray) in one phrase, no story around it.
 - Bullets only in step 3, where the retry forks.
+- Diagram uses the prose's words ("try again later" tray, "needs a human" tray, alarm) and could be redrawn from the prose alone.
 - No identifier in the prose. Every tail line starts with a phrase from the prose.
-- One image (tray) for both queues, qualified.
+- No mnemonic, no question to the reader, no humor.
 - Design-only claim flagged: reward signal has no consumer yet.
-- Word count: about 290 with step titles, tail excluded.
+- Word count: about 290 with step titles, diagram and tail excluded.
