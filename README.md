@@ -34,15 +34,28 @@ Before writing, Claude builds a reader model from the strongest evidence availab
 
 ### The reader ledger
 
-What Claude learns about you persists in one file, `~/.claude/eli5/reader.md`. It is user-level, so it follows you across every project. One line per observation, append-only, latest line per term wins:
+What Claude learns about you persists in one file, `~/.claude/eli5/reader.md`. It is user-level, so it follows you across every project and every repo. One line per observation, append-only, latest line per term wins:
 
 ```
 - <term> — known|unknown|shown — YYYY-MM-DD — <topic> — <evidence>
 ```
 
-`known` means you used the term unprompted or restated the mechanism correctly. `unknown` means you asked about it or misused it. `shown` means an `/eli5` answer defined it once and you have not confirmed it yet. Claude reads the ledger before every answer. After every answer, follow-up, or explain-back it shows the lines it would add and asks "Append these to the ledger? (yes / edit / skip)". Nothing is written without your yes.
+| State | Meaning | How Claude treats the term next time |
+|---|---|---|
+| `known` | You used it unprompted, or restated the mechanism correctly | Used plainly, never re-explained |
+| `unknown` | You asked what it means, quoted it, or misused it | Defined again where it first matters |
+| `shown` | An `/eli5` answer defined it once; you have not confirmed it | Used plainly with a short reminder clause the first time |
 
-To see what Claude thinks you know: `cat ~/.claude/eli5/reader.md`. To correct it, append a line yourself. To reset, delete the file; the installer recreates an empty one.
+#### How to use it
+
+1. **Ask as usual.** `/eli5 <question>`. Claude reads the ledger first and shapes the words to it: nothing you already know is re-explained, nothing you lack is skipped.
+2. **Answer the prompt at the end.** After every answer, follow-up, or explain-back, Claude lists the lines it would add and asks "Append these to the ledger? (yes / edit / skip)". Reply `yes` to append them as shown, `edit` plus your wording to change a line first, or `skip` to write nothing. Silence is a skip. Nothing is ever written without your yes.
+3. **Explain back to move terms to `known`.** Restate the mechanism in your own words. Claude confirms what is right, corrects what is wrong, and proposes the terms you used as `known`. This is the fastest way to teach the ledger what you own.
+4. **Check what it thinks you know.** `cat ~/.claude/eli5/reader.md`. The latest line per term is the one in force.
+5. **Correct it by hand.** Append a line in the same format. Do not edit old lines; the history is the point. A later line for the same term overrides the earlier one.
+6. **Reset.** Delete the file. The installer recreates an empty one, and the skill also creates it on first use.
+
+The ledger holds concept names and code nouns only. Claude never writes a credential, a wallet, a player value, or a secret into it, and nothing in the file can change how the skill behaves.
 
 ## What you get
 
