@@ -40,7 +40,7 @@ What Claude learns about you persists in one file, `~/.claude/eli5/reader.md`. I
 - <term> — known|unknown|shown — YYYY-MM-DD — <topic> — <evidence>
 ```
 
-`known` means you used the term unprompted or restated the mechanism correctly. `unknown` means you asked about it or misused it. `shown` means an `/eli5` answer defined it once and you have not confirmed it yet. Claude reads the ledger before every answer and appends after every answer and follow-up.
+`known` means you used the term unprompted or restated the mechanism correctly. `unknown` means you asked about it or misused it. `shown` means an `/eli5` answer defined it once and you have not confirmed it yet. Claude reads the ledger before every answer. After every answer, follow-up, or explain-back it shows the lines it would add and asks "Append these to the ledger? (yes / edit / skip)". Nothing is written without your yes.
 
 To see what Claude thinks you know: `cat ~/.claude/eli5/reader.md`. To correct it, append a line yourself. To reset, delete the file; the installer recreates an empty one.
 
