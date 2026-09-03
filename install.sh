@@ -19,4 +19,15 @@ fi
 
 ln -s "$root/skills/eli5" "$dest"
 echo "linked $dest -> $root/skills/eli5"
+
+ledger="$HOME/.claude/eli5/reader.md"
+if [[ ! -e "$ledger" ]]; then
+  mkdir -p "$(dirname "$ledger")"
+  printf '%s\n' \
+    '# /eli5 reader ledger' \
+    '# One line per observation. Latest line per term wins. Append only.' \
+    '# - <term> — known|unknown|shown — YYYY-MM-DD — <topic> — <evidence>' \
+    > "$ledger"
+  echo "seeded empty ledger at $ledger"
+fi
 echo "Type /eli5 <question> in any Claude Code session."

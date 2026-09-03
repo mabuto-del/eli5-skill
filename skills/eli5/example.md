@@ -8,7 +8,15 @@
 
 ## Fit (decided before writing)
 
-**Reader model.** The question uses "retry," "failed," and "Slack post" unprompted, so those are owned words and stay. Nothing in the question or the session shows the reader knows what a queue is, so the default baseline applies: queue is unknown, becomes "tray." Anchor: the reader knows what "posting to Slack" is, so the mechanism opens from there.
+**Reader model.** The question uses "retry," "failed," and "Slack post" unprompted, so those are owned words and stay. The ledger at `~/.claude/eli5/reader.md` was empty. Nothing in the question or the session shows the reader knows what a queue is, so the default baseline applies: queue is unknown, becomes "tray." Anchor: the reader knows what "posting to Slack" is, so the mechanism opens from there.
+
+**Ledger lines appended after the answer:**
+
+```
+- retry — known — 2026-08-28 — intake notifier — used in question
+- queue — shown — 2026-08-28 — intake notifier — defined as "tray"
+- dead-letter queue — shown — 2026-08-28 — intake notifier — defined as "needs a human" tray
+```
 
 **Break-up.** The mechanism is a sequence — post, fail, tray, retry, escalate — so numbered stages, not a three-part list.
 
@@ -61,6 +69,7 @@ In one sentence: save first, try Slack, retry three times without duplicates, ha
 - Break-up matches the mechanism: a sequence, so numbered stages.
 - Five stages, each hands off: wake → tray → retry → human → (precondition) signal.
 - Anchored to a known thing: opens from "posting to Slack," which the question already used.
+- Ledger read before writing (empty); three lines appended after.
 - Owned words kept ("retry," "failed," "post"); one unknown (queue) replaced by one image (tray) in one phrase, no story around it.
 - Bullets only in step 3, where the retry forks.
 - Diagram uses the prose's words ("try again later" tray, "needs a human" tray, alarm) and could be redrawn from the prose alone.

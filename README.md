@@ -30,7 +30,19 @@ The skill never fires on its own. Every other answer keeps its normal shape.
 
 ## How it fits the reader
 
-Before writing, Claude builds a reader model from the strongest evidence available: the words you used in the question, earlier `/eli5` turns and follow-ups in the session, then any recalled memory about your background, then a default baseline (an interviewer who has never written code). Terms you already own are used plainly. Terms you lack are defined once where they first matter. The model shapes the words and is never mentioned in the answer.
+Before writing, Claude builds a reader model from the strongest evidence available: the words you used in the question, earlier `/eli5` turns and follow-ups in the session, then the reader ledger, then any recalled memory about your background, then a default baseline (an interviewer who has never written code). Terms you already own are used plainly. Terms you lack are defined once where they first matter. The model shapes the words and is never mentioned in the answer.
+
+### The reader ledger
+
+What Claude learns about you persists in one file, `~/.claude/eli5/reader.md`. It is user-level, so it follows you across every project. One line per observation, append-only, latest line per term wins:
+
+```
+- <term> — known|unknown|shown — YYYY-MM-DD — <topic> — <evidence>
+```
+
+`known` means you used the term unprompted or restated the mechanism correctly. `unknown` means you asked about it or misused it. `shown` means an `/eli5` answer defined it once and you have not confirmed it yet. Claude reads the ledger before every answer and appends after every answer and follow-up.
+
+To see what Claude thinks you know: `cat ~/.claude/eli5/reader.md`. To correct it, append a line yourself. To reset, delete the file; the installer recreates an empty one.
 
 ## What you get
 
@@ -49,5 +61,6 @@ See `skills/eli5/example.md` for a full worked example.
 ```
 skills/eli5/SKILL.md     the skill
 skills/eli5/example.md   worked example with the self-check applied
-install.sh               symlink installer
+install.sh               symlink installer; also seeds the empty reader ledger
+~/.claude/eli5/reader.md the reader ledger (yours, not in this repo)
 ```
